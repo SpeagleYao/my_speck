@@ -1,2 +1,8 @@
 # my_speck
-Speck Code Reconstruction
+My Speck Code Reconstruction
+
+TODO List
+- [ ]  Speck & Simon
+- [ ]  Generate Ciphertexts pairs
+- [ ]  Network Construction
+- [ ]  Network Training
