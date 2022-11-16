@@ -3,6 +3,6 @@ My Speck Code Reconstruction
 
 TODO List
 - [x]  Speck & Simon
-- [ ]  Generate Ciphertexts pairs
+- [x]  Generate Data
 - [ ]  Network Construction
 - [ ]  Network Training

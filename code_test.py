@@ -2,6 +2,7 @@
 
 import numpy as np
 from os import urandom
+from crypto.speck import speck
 
 # def WORD_SIZE():
 #     return 16
@@ -32,6 +33,11 @@ from os import urandom
 # print(k[0])
 # print(k[1:])
 
-n = 10
-x = np.frombuffer(urandom(2*n),dtype=np.uint16)
-print(x.shape[0])
+# n = 10
+# x = np.frombuffer(urandom(2*n),dtype=np.uint16)
+# print(x.shape[0])
+
+speck = speck()
+X, Y = speck.generate_train_data(10, 22)
+print(X.shape)
+print(Y)
