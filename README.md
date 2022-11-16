@@ -2,7 +2,7 @@
 My Speck Code Reconstruction
 
 TODO List
-- [ ]  Speck & Simon
+- [x]  Speck & Simon
 - [ ]  Generate Ciphertexts pairs
 - [ ]  Network Construction
 - [ ]  Network Training
