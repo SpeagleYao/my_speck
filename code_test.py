@@ -3,6 +3,24 @@
 import numpy as np
 from os import urandom
 from crypto.speck import speck
+from models import *
+
+import torch.optim as opt
+import torch.optim.lr_scheduler as sch
+
+base_lr = 2e-3
+max_lr = 1e-4
+
+model = ResNet_Gohr(1)
+
+optimizer = opt.Adam(model.parameters(), lr=base_lr, weight_decay=1e-5)
+scheduler = sch.CyclicLR(optimizer, base_lr, max_lr, 9, 1, cycle_momentum=False, verbose=True)
+
+for i in range(20):
+
+    optimizer.step()
+    scheduler.step()
+    # print(optimizer.state_dict()['param_groups'][0]['lr'])
 
 # def WORD_SIZE():
 #     return 16
@@ -37,7 +55,7 @@ from crypto.speck import speck
 # x = np.frombuffer(urandom(2*n),dtype=np.uint16)
 # print(x.shape[0])
 
-speck = speck()
-X, Y = speck.generate_train_data(10, 22)
-print(X.shape)
-print(Y)
+# speck = speck()
+# X, Y = speck.generate_train_data(10, 22)
+# print(X.shape)
+# print(Y)

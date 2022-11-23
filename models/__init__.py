@@ -1,0 +1,1 @@
+from .resnet_gohr import ResNet_Gohr
