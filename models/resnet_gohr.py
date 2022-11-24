@@ -41,15 +41,22 @@ class ResNet(nn.Module):
         for nb in num_blocks:
             self.layers.append(self._make_layer(block, 32, nb))
 
-        self.linear1 = nn.Linear(512, 64)
-        self.linear2 = nn.Linear(64, 64)
-        self.linear3 = nn.Linear(64, 1)
+        self.dense1 = self._dense_layer(512, 64)
+        self.dense2 = self._dense_layer(64, 64)
+        self.linear = nn.Linear(64, 1)
 
     def _make_layer(self, block, planes, num_blocks):
         layers = []
         for i in range(num_blocks):
             layers.append(block(self.in_planes, planes))
         return nn.Sequential(*layers)
+
+    def _dense_layer(self, in_dim, out_dim):
+        return nn.Sequential(
+            nn.Linear(in_dim, out_dim), 
+            nn.BatchNorm1d(out_dim), 
+            nn.ReLU()
+        )
 
     def forward(self, x):
 
@@ -60,8 +67,8 @@ class ResNet(nn.Module):
             out = self.layers[i](out)
         
         feature = out.view(out.size(0), -1)
-        out = self.linear1(feature)
-        out = self.linear2(out)
+        out = self.dense1(feature)
+        out = self.dense2(out)
         out = self.linear3(out)
         return out
 

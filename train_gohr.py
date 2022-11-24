@@ -15,7 +15,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 # Training settings
 parser = argparse.ArgumentParser(description='PyTorch Model Train')
 parser.add_argument('--batch-size', type=int, default=5000,
-                help='input batch size for training (default: 8000)')
+                help='input batch size for training (default: 5000)')
 parser.add_argument('--test-batch-size', type=int, default=100000,
                 help='input batch size for testing (default: 100000)')
 parser.add_argument('--epochs', type=int, default=20,
