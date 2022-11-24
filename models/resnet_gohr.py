@@ -69,7 +69,7 @@ class ResNet(nn.Module):
         feature = out.view(out.size(0), -1)
         out = self.dense1(feature)
         out = self.dense2(out)
-        out = self.linear3(out)
+        out = self.linear(out)
         return out
 
 def ResNet_Gohr(blocks=10):
