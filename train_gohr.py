@@ -1,13 +1,12 @@
 import numpy as np
 import argparse
 import os
-import sys
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as opt
 import torch.optim.lr_scheduler as sch
-from torchvision import datasets, transforms
+from torch.utils.data import DataLoader, TensorDataset
 from models import *
 from tqdm import tqdm
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
@@ -40,6 +39,13 @@ if args.cuda:
 else:
     print("No cuda participate.")
 
+X_train = torch.as_tensor(np.load("./data/7r/train_data_7r.npy"))
+Y_train = torch.as_tensor(np.load("./data/7r/train_label_7r.npy"))
+X_test = torch.as_tensor(np.load("./data/7r/test_data_7r.npy"))
+Y_test= torch.as_tensor(np.load("./data/7r/test_label_7r.npy"))
+train_loader = DataLoader(TensorDataset(X_train, Y_train), batch_size=args.batch_size)
+test_loader = DataLoader(TensorDataset(X_test, Y_test), batch_size=args.test_batch_size)
+
 model = ResNet_Gohr(blocks=10)
 if args.cuda:
     model.cuda()
@@ -50,7 +56,7 @@ scheduler = sch.CyclicLR(optimizer, base_lr = args.base_lr, max_lr = args.max_lr
 
 def train(epoch):
     model.train()
-    for batch_idx, (data, target) in enumerate(train_loader):
+    for batch_idx, (data, target) in enumerate(tqdm(train_loader)):
         if args.cuda:
             data, target = data.cuda(), target.cuda()
         optimizer.zero_grad()
@@ -59,11 +65,11 @@ def train(epoch):
         
         loss.backward()
         optimizer.step()
-        if batch_idx % args.log_interval == 0:
-            print('Train Epoch: {} [{}/{} ({:.1f}%)]\tLoss: {:.6f}\tLoss_l2: {:.6f}\tLoss_w: {:.6f}'.format(
+        if batch_idx % 250 == 0:
+            print('Train Epoch: {} [{}/{} ({:.1f}%)]\tLoss: {:.6f}'.format(
                 epoch, batch_idx * len(data), len(train_loader.dataset),
-                       100. * batch_idx / len(train_loader), loss.item(), loss_l2.item(), loss_w.item() *args.alpha))
-    filename = '../cp_res34/resnet34_ours_a{}_d{}.pth'.format(args.alpha, args.delta)
+                       100. * batch_idx / len(train_loader), loss.item()))
+    filename = '../checkpoints/res_gohr_7r.pth'
     torch.save(model.state_dict(), filename)
 
 
@@ -75,9 +81,8 @@ def inference():
         for data, target in test_loader:
             if args.cuda:
                 data, target = data.cuda(), target.cuda()
-            data, target = Variable(data), Variable(target)
-            _, output = model(data)
-            test_loss += F.cross_entropy(output, target, reduction='sum').item()
+            output = model(data)
+            test_loss += criterion(output, target).item()
             pred = output.data.max(1, keepdim=True)[1]
             correct += pred.eq(target.data.view_as(pred)).cpu().sum()
         test_loss /= len(test_loader.dataset)
@@ -87,4 +92,4 @@ def inference():
 
 for epoch in range(1, args.epochs + 1):
     train(epoch)
-    inference()
+    # inference()

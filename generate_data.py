@@ -3,7 +3,7 @@ import numpy as np
 import os
 
 NUM_TRAIN_PAIRS = 10**7
-NUM_TEST_PAIRS = 10**5
+NUM_TEST_PAIRS = 10**6
 ROUNDS = 7
 
 speck = speck()
