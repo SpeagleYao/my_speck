@@ -39,10 +39,10 @@ if args.cuda:
 else:
     print("No cuda participate.")
 
-X_train = torch.as_tensor(np.load("./data/7r/train_data_7r.npy"))
-Y_train = torch.as_tensor(np.load("./data/7r/train_label_7r.npy"))
-X_test = torch.as_tensor(np.load("./data/7r/test_data_7r.npy"))
-Y_test= torch.as_tensor(np.load("./data/7r/test_label_7r.npy"))
+X_train = torch.as_tensor(np.load("./data/7r/train_data_7r.npy")).to(torch.float32)
+Y_train = torch.as_tensor(np.load("./data/7r/train_label_7r.npy")).to(torch.float32)
+X_test = torch.as_tensor(np.load("./data/7r/test_data_7r.npy")).to(torch.float32)
+Y_test= torch.as_tensor(np.load("./data/7r/test_label_7r.npy")).to(torch.float32)
 train_loader = DataLoader(TensorDataset(X_train, Y_train), batch_size=args.batch_size)
 test_loader = DataLoader(TensorDataset(X_test, Y_test), batch_size=args.test_batch_size)
 
@@ -69,9 +69,8 @@ def train(epoch):
             print('Train Epoch: {} [{}/{} ({:.1f}%)]\tLoss: {:.6f}'.format(
                 epoch, batch_idx * len(data), len(train_loader.dataset),
                        100. * batch_idx / len(train_loader), loss.item()))
-    filename = '../checkpoints/res_gohr_7r.pth'
+    filename = './checkpoints/res_gohr_7r.pth'
     torch.save(model.state_dict(), filename)
-
 
 def inference():
     model.eval()
@@ -92,4 +91,4 @@ def inference():
 
 for epoch in range(1, args.epochs + 1):
     train(epoch)
-    # inference()
+    inference()

@@ -12,11 +12,11 @@ class BasicBlock(nn.Module):
         self.conv2 = nn.Conv1d(in_planes, planes, kernel_size=3, padding=1)
         self.bn2 = nn.BatchNorm1d(planes)
         self.shortcut = nn.Sequential()
-        if in_planes != planes:
-            self.shortcut = nn.Sequential(
-                nn.Conv1d(in_planes, planes, kernel_size=1),
-                nn.BatchNorm2d(self.expansion*planes)
-            )
+        # if in_planes != planes:
+        #     self.shortcut = nn.Sequential(
+        #         nn.Conv1d(in_planes, planes, kernel_size=1),
+        #         nn.BatchNorm2d(self.expansion*planes)
+        #     )
 
     def forward(self, x):
         out = F.relu(self.bn1(self.conv1(x)))
@@ -28,7 +28,7 @@ class BasicBlock(nn.Module):
 class ResNet(nn.Module):
     def __init__(self, block, num_blocks):
         super(ResNet, self).__init__()
-        self.in_planes = 64
+        self.in_planes = 32
 
         self.conv1 = nn.Conv1d(4, 32, kernel_size=1)
         self.bn1 = nn.BatchNorm1d(32)
