@@ -5,7 +5,7 @@ My Speck Code Reconstruction
 - [x]  Speck & Simon
 - [x]  Generate Data
 - [x]  Network Construction
-- [ ]  Network Training
+- [x]  Network Training
 
 ### Notes
 Found lots of weird choice in the process of network construction. Need to test more!

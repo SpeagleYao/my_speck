@@ -14,7 +14,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 # Training settings
 parser = argparse.ArgumentParser(description='PyTorch Model Train')
-parser.add_argument('--batch-size', type=int, default=8000,
+parser.add_argument('--batch-size', type=int, default=5000,
                 help='input batch size for training (default: 8000)')
 parser.add_argument('--test-batch-size', type=int, default=100000,
                 help='input batch size for testing (default: 100000)')
@@ -52,7 +52,9 @@ if args.cuda:
 
 criterion = nn.MSELoss().cuda()
 optimizer = opt.Adam(model.parameters(), lr=args.base_lr, weight_decay=args.weight_decay)
-scheduler = sch.CyclicLR(optimizer, base_lr = args.base_lr, max_lr = args.max_lr, step_size_up = 9, step_size_down = 1, cycle_momentum=False)
+# scheduler = sch.CyclicLR(optimizer, base_lr = args.base_lr, max_lr = args.max_lr, step_size_up = 9, step_size_down = 1, cycle_momentum=False)
+lambda1 = lambda epoch: (args.max_lr + (9 - epoch % 10)/9 * (args.base_lr - 0.0001))/args.base_lr
+scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda1)
 
 def train(epoch):
     model.train()
@@ -65,11 +67,11 @@ def train(epoch):
         
         loss.backward()
         optimizer.step()
-        if batch_idx % 250 == 0:
+        if batch_idx % 500 == 0:
             tqdm.write('Train Epoch: {} [{}/{} ({:.1f}%)]\tLoss: {:.6f}'.format(
                 epoch, batch_idx * len(data), len(train_loader.dataset),
                        100. * batch_idx / len(train_loader), loss.item()))
-        break
+    
     filename = './checkpoints/res_gohr_7r.pth'
     torch.save(model.state_dict(), filename)
 
