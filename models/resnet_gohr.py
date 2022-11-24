@@ -21,7 +21,7 @@ class BasicBlock(nn.Module):
     def forward(self, x):
         out = F.relu(self.bn1(self.conv1(x)))
         out = F.relu(self.bn2(self.conv2(out)))
-        out += self.shortcut(x)
+        out = out + self.shortcut(x)
         
         return out
 
@@ -33,7 +33,11 @@ class ResNet(nn.Module):
         self.conv1 = nn.Conv1d(4, 32, kernel_size=1)
         self.bn1 = nn.BatchNorm1d(32)
 
-        self.layers = []
+        # self.layers = []
+        # for nb in num_blocks:
+        #     self.layers.append(self._make_layer(block, 32, nb))
+
+        self.layers = nn.ModuleList()
         for nb in num_blocks:
             self.layers.append(self._make_layer(block, 32, nb))
 
@@ -57,8 +61,8 @@ class ResNet(nn.Module):
         
         feature = out.view(out.size(0), -1)
         out = self.linear1(feature)
-        out = self.linear2(feature)
-        out = self.linear3(feature)
+        out = self.linear2(out)
+        out = self.linear3(out)
         return out
 
 def ResNet_Gohr(blocks=10):

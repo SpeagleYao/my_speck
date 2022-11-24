@@ -16,8 +16,8 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 parser = argparse.ArgumentParser(description='PyTorch Model Train')
 parser.add_argument('--batch-size', type=int, default=8000,
                 help='input batch size for training (default: 8000)')
-parser.add_argument('--test-batch-size', type=int, default=1000,
-                help='input batch size for testing (default: 1000)')
+parser.add_argument('--test-batch-size', type=int, default=100000,
+                help='input batch size for testing (default: 100000)')
 parser.add_argument('--epochs', type=int, default=20,
                 help='number of epochs to train (default: 20)')
 parser.add_argument('--weight-decay', '--wd', default=1e-5, type=float,
@@ -60,15 +60,16 @@ def train(epoch):
         if args.cuda:
             data, target = data.cuda(), target.cuda()
         optimizer.zero_grad()
-        output = model(data)
+        output = model(data).squeeze()
         loss = criterion(output, target)
         
         loss.backward()
         optimizer.step()
         if batch_idx % 250 == 0:
-            print('Train Epoch: {} [{}/{} ({:.1f}%)]\tLoss: {:.6f}'.format(
+            tqdm.write('Train Epoch: {} [{}/{} ({:.1f}%)]\tLoss: {:.6f}'.format(
                 epoch, batch_idx * len(data), len(train_loader.dataset),
                        100. * batch_idx / len(train_loader), loss.item()))
+        break
     filename = './checkpoints/res_gohr_7r.pth'
     torch.save(model.state_dict(), filename)
 
@@ -80,10 +81,9 @@ def inference():
         for data, target in test_loader:
             if args.cuda:
                 data, target = data.cuda(), target.cuda()
-            output = model(data)
-            test_loss += criterion(output, target).item()
-            pred = output.data.max(1, keepdim=True)[1]
-            correct += pred.eq(target.data.view_as(pred)).cpu().sum()
+            output = model(data).squeeze()
+            test_loss += F.mse_loss(output, target, reduction='sum').item()
+            correct += (output.ge(0.5) == target).sum().item()
         test_loss /= len(test_loader.dataset)
         print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.2f}%)\n'.format(
             test_loss, correct, len(test_loader.dataset),
