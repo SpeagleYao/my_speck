@@ -10,14 +10,14 @@ class BasicBlock(nn.Module):
         super(BasicBlock, self).__init__()
         self.conv1 = nn.Conv1d(in_planes, planes, kernel_size=3, padding=1)
         self.bn1 = nn.BatchNorm1d(planes)
-        self.conv2 = nn.Conv1d(in_planes, planes, kernel_size=3, padding=1)
+        self.conv2 = nn.Conv1d(planes, planes, kernel_size=3, padding=1)
         self.bn2 = nn.BatchNorm1d(planes)
         self.shortcut = nn.Sequential()
-        # if in_planes != planes:
-        #     self.shortcut = nn.Sequential(
-        #         nn.Conv1d(in_planes, planes, kernel_size=1),
-        #         nn.BatchNorm2d(self.expansion*planes)
-        #     )
+        if in_planes != planes:
+            self.shortcut = nn.Sequential(
+                nn.Conv1d(in_planes, planes, kernel_size=1),
+                nn.BatchNorm1d(self.expansion*planes)
+            )
 
     def forward(self, x):
         out = F.relu(self.bn1(self.conv1(x)))
@@ -34,23 +34,25 @@ class ResNet(nn.Module):
         self.conv1 = nn.Conv1d(4, 32, kernel_size=1)
         self.bn1 = nn.BatchNorm1d(32)
 
-        # self.layers = []
+        # self.layers = nn.ModuleList()
         # for nb in num_blocks:
         #     self.layers.append(self._make_layer(block, 32, nb))
 
-        self.layers = nn.ModuleList()
-        for nb in num_blocks:
-            self.layers.append(self._make_layer(block, 32, nb))
+        self.layer1 = self._make_layer(block, 32, num_blocks[0])
+        self.layer2 = self._make_layer(block, 64, num_blocks[0])
+        self.layer3 = self._make_layer(block, 128, num_blocks[0])
+        self.layer4 = self._make_layer(block, 256, num_blocks[0])
 
-        self.dense1 = self._dense_layer(512, 64)
-        self.dense2 = self._dense_layer(64, 64)
-        self.linear = nn.Linear(64, 1)
+        self.dense1 = self._dense_layer(4096, 4096)
+        self.dense2 = self._dense_layer(4096, 1000)
+        self.linear = nn.Linear(1000, 1)
         self.sigmoid = nn.Sigmoid()
 
     def _make_layer(self, block, planes, num_blocks):
         layers = []
         for i in range(num_blocks):
             layers.append(block(self.in_planes, planes))
+            self.in_planes = planes * block.expansion
         return nn.Sequential(*layers)
 
     def _dense_layer(self, in_dim, out_dim):
@@ -65,8 +67,10 @@ class ResNet(nn.Module):
         x = x.view(x.shape[0], 4, 16)
         out = F.relu(self.bn1(self.conv1(x)))
 
-        for i in range(len(self.layers)):
-            out = self.layers[i](out)
+        out = self.layer1(out)
+        out = self.layer2(out)
+        out = self.layer3(out)
+        out = self.layer4(out)
         
         feature = out.view(out.size(0), -1)
         out = self.dense1(feature)
@@ -74,11 +78,14 @@ class ResNet(nn.Module):
         out = self.sigmoid(self.linear(out))
         return out
 
-def ResNet_Gohr(blocks=10):
-    return ResNet(BasicBlock, [2] * blocks)
+def ResNet18_my():
+    return ResNet(BasicBlock, [2, 2, 2, 2])
+
+def ResNet34_my():
+    return ResNet(BasicBlock, [3, 4, 6, 3])
 
 if __name__=='__main__':
-    net = ResNet_Gohr()
+    net = ResNet18_my()
     summary(net.cuda(), (1, 64))
     x = torch.rand(13, 64).cuda()
     y = net(x) 
