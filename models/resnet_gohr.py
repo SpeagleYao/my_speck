@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torchsummary import summary
 
 class BasicBlock(nn.Module):
     expansion = 1
@@ -44,6 +45,7 @@ class ResNet(nn.Module):
         self.dense1 = self._dense_layer(512, 64)
         self.dense2 = self._dense_layer(64, 64)
         self.linear = nn.Linear(64, 1)
+        self.sigmoid = nn.Sigmoid()
 
     def _make_layer(self, block, planes, num_blocks):
         layers = []
@@ -69,8 +71,15 @@ class ResNet(nn.Module):
         feature = out.view(out.size(0), -1)
         out = self.dense1(feature)
         out = self.dense2(out)
-        out = self.linear(out)
+        out = self.sigmoid(self.linear(out))
         return out
 
 def ResNet_Gohr(blocks=10):
     return ResNet(BasicBlock, [2] * blocks)
+
+if __name__=='__main__':
+    net = ResNet_Gohr()
+    summary(net.cuda(), (1, 64))
+    x = torch.rand(13, 64).cuda()
+    y = net(x) 
+    print(y.size())
