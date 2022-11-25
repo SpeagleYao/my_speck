@@ -9,7 +9,7 @@ import torch.optim.lr_scheduler as sch
 from torch.utils.data import DataLoader, TensorDataset
 from models import *
 from tqdm import tqdm
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
 
 # Training settings
@@ -18,7 +18,7 @@ parser.add_argument('--batch-size', type=int, default=5000,
                 help='input batch size for training (default: 5000)')
 parser.add_argument('--test-batch-size', type=int, default=100000,
                 help='input batch size for testing (default: 100000)')
-parser.add_argument('--epochs', type=int, default=200,
+parser.add_argument('--epochs', type=int, default=20,
                 help='number of epochs to train (default: 20)')
 parser.add_argument('--weight-decay', '--wd', default=1e-5, type=float,
                 help='weight decay (default: 1e-5)')
@@ -72,7 +72,7 @@ def train(epoch):
                 epoch, batch_idx * len(data), len(train_loader.dataset),
                        100. * batch_idx / len(train_loader), loss.item()))
     
-    filename = './checkpoints/res_gohr_7r_200e_2.pth'
+    filename = './checkpoints/res_gohr_7r_20e.pth'
     torch.save(model.state_dict(), filename)
 
 def inference():
