@@ -9,7 +9,7 @@ import torch.optim.lr_scheduler as sch
 from torch.utils.data import DataLoader, TensorDataset
 from models import *
 from tqdm import tqdm
-from .crypto import speck
+from crypto import speck
 os.environ["CUDA_VISIBLE_DEVICES"] = "0, 1"
 
 
@@ -20,7 +20,7 @@ parser.add_argument('--batch-size', type=int, default=5000,
 parser.add_argument('--test-batch-size', type=int, default=5000,
                 help='input batch size for testing (default: 5000)')
 parser.add_argument('--epochs', type=int, default=20,
-                help='number of epochs to train (default: 20)')
+                help='number of epochs to train (default: 200)')
 parser.add_argument('--weight-decay', '--wd', default=1e-5, type=float,
                 help='weight decay (default: 1e-5)')
 parser.add_argument('--base-lr', type=float, default=2e-3,
@@ -49,8 +49,8 @@ else:
 # Y_train = torch.as_tensor(np.load("./data/7r/train_label_7r.npy")).to(torch.float32)
 # X_test = torch.as_tensor(np.load("./data/7r/test_data_7r.npy")).to(torch.float32)
 # Y_test= torch.as_tensor(np.load("./data/7r/test_label_7r.npy")).to(torch.float32)
-X_train, Y_train = speck.make_train_data(10**7, args.nr)
-X_test, Y_test = speck.make_train_data(10**6, args.nr)
+X_train, Y_train = speck.generate_train_data(10**7, args.nr)
+X_test, Y_test = speck.generate_train_data(10**6, args.nr)
 X_train = torch.as_tensor(X_train).to(torch.float32)
 Y_train = torch.as_tensor(Y_train).to(torch.float32)
 X_test = torch.as_tensor(X_test).to(torch.float32)
