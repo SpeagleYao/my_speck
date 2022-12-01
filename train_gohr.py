@@ -9,7 +9,7 @@ import torch.optim.lr_scheduler as sch
 from torch.utils.data import DataLoader, TensorDataset
 from models import *
 from tqdm import tqdm
-from crypto import speck
+from crypto.speck import speck
 os.environ["CUDA_VISIBLE_DEVICES"] = "0, 1"
 
 
@@ -31,7 +31,7 @@ parser.add_argument('--no-cuda', action='store_true', default=False,
                 help='disables CUDA training')
 parser.add_argument('--depth', type=int, default=1,
                 help='depth of resnet (default: 1)')
-parser.add_argument('--nr', type=int, default=7,
+parser.add_argument('--nr', type=int, default=5,
                 help='round of encryptions (default: 7)')
 # parser.add_argument('--seed', type=int, default=1,
 #                 help='random seed (default: 1)')
@@ -49,8 +49,9 @@ else:
 # Y_train = torch.as_tensor(np.load("./data/7r/train_label_7r.npy")).to(torch.float32)
 # X_test = torch.as_tensor(np.load("./data/7r/test_data_7r.npy")).to(torch.float32)
 # Y_test= torch.as_tensor(np.load("./data/7r/test_label_7r.npy")).to(torch.float32)
-X_train, Y_train = speck.generate_train_data(10**7, args.nr)
-X_test, Y_test = speck.generate_train_data(10**6, args.nr)
+sp = speck()
+X_train, Y_train = sp.generate_train_data(10**7, args.nr)
+X_test, Y_test = sp.generate_train_data(10**6, args.nr)
 X_train = torch.as_tensor(X_train).to(torch.float32)
 Y_train = torch.as_tensor(Y_train).to(torch.float32)
 X_test = torch.as_tensor(X_test).to(torch.float32)
