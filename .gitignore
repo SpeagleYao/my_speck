@@ -2,6 +2,7 @@
 data/
 checkpoints/
 log/
+model_parameters/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -9,6 +9,7 @@ class BasicBlock(nn.Module):
     def __init__(self, in_planes, planes):
         super(BasicBlock, self).__init__()
         self.conv1 = nn.Conv1d(in_planes, planes, kernel_size=3, padding=1)
+        # self.bn1 = nn.BatchNorm1d(planes, eps=1e-3, momentum=0.99)
         self.bn1 = nn.BatchNorm1d(planes)
         self.conv2 = nn.Conv1d(planes, planes, kernel_size=3, padding=1)
         self.bn2 = nn.BatchNorm1d(planes)
@@ -37,6 +38,7 @@ class ResNet(nn.Module):
         self.dense2 = self._dense_layer(64, 64)
         self.linear = nn.Linear(64, 1)
         self.sigmoid = nn.Sigmoid()
+        self.flatten = nn.Flatten()
 
     def _make_layer(self, block, planes, num_blocks):
         layers = []
@@ -59,17 +61,17 @@ class ResNet(nn.Module):
         for i in range(len(self.layers)):
             out = self.layers[i](out)
         
-        feature = out.view(out.size(0), -1)
+        feature = self.flatten(out)
         out = self.dense1(feature)
         out = self.dense2(out)
         out = self.sigmoid(self.linear(out))
         return out
 
 def ResNet_Gohr(blocks=10):
-    return ResNet(BasicBlock, [2] * blocks)
+    return ResNet(BasicBlock, [1] * blocks)
 
 if __name__=='__main__':
-    net = ResNet_Gohr()
+    net = ResNet_Gohr(1)
     summary(net.cuda(), (1, 64))
     x = torch.rand(13, 64).cuda()
     y = net(x) 
