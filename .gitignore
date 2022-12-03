@@ -1,7 +1,7 @@
 # My .gitignore
 data/
 checkpoints/
-log/
+log*/
 model_parameters/
 
 # Byte-compiled / optimized / DLL files

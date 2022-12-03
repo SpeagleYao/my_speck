@@ -34,10 +34,6 @@ class ResNet(nn.Module):
         self.conv1 = nn.Conv1d(4, 32, kernel_size=1)
         self.bn1 = nn.BatchNorm1d(32)
 
-        # self.layers = nn.ModuleList()
-        # for nb in num_blocks:
-        #     self.layers.append(self._make_layer(block, 32, nb))
-
         self.layer1 = self._make_layer(block, 32, num_blocks[0])
         self.layer2 = self._make_layer(block, 64, num_blocks[0])
         self.layer3 = self._make_layer(block, 128, num_blocks[0])
@@ -47,6 +43,7 @@ class ResNet(nn.Module):
         self.dense2 = self._dense_layer(4096, 1000)
         self.linear = nn.Linear(1000, 1)
         self.sigmoid = nn.Sigmoid()
+        self.flatten = nn.Flatten()
 
     def _make_layer(self, block, planes, num_blocks):
         layers = []
@@ -72,7 +69,7 @@ class ResNet(nn.Module):
         out = self.layer3(out)
         out = self.layer4(out)
         
-        feature = out.view(out.size(0), -1)
+        feature = self.flatten(out)
         out = self.dense1(feature)
         out = self.dense2(out)
         out = self.sigmoid(self.linear(out))
@@ -85,7 +82,7 @@ def ResNet34_my():
     return ResNet(BasicBlock, [3, 4, 6, 3])
 
 if __name__=='__main__':
-    net = ResNet18_my()
+    net = ResNet34_my()
     summary(net.cuda(), (1, 64))
     x = torch.rand(13, 64).cuda()
     y = net(x) 
